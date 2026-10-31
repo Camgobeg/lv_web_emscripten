@@ -8,6 +8,8 @@
  *      INCLUDES
  *********************/
 #include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 #include <unistd.h>
 #define SDL_MAIN_HANDLED        /*To fix SDL's "undefined reference to WinMain" issue*/
 #include <SDL2/SDL.h>
@@ -62,17 +64,20 @@ int main(int argc, char ** argv)
 
     extern const struct lv_ci_example lv_ci_example_list[];
     const struct lv_ci_example *ex = NULL;
-    monitor_hor_res = atoi(argv[1]);
-    monitor_ver_res = atoi(argv[2]);
-    /* Check if a specific example is wanted (not "default") */
-    if(argc >= 4 && strcmp(ex->name, "default")) {
+    monitor_hor_res = argc > 1 ? atoi(argv[1]) : 800;
+    monitor_ver_res = argc > 2 ? atoi(argv[2]) : 480;
+
+    /* Check if a named CI example was requested. */
+    const char *requested_example = argc > 3 ? argv[3] : "default";
+    if(strcmp(requested_example, "default") != 0) {
         for(ex = &lv_ci_example_list[0]; ex->name != NULL; ex++) {
-            if(!strcmp(ex->name, argv[3])) {
+            if(strcmp(ex->name, requested_example) == 0) {
                 break;
             }
         }
         if(ex->name == NULL) {
-            fprintf(stderr, "Unable to find requested example\n");
+            fprintf(stderr, "Unable to find requested example: %s\n", requested_example);
+            ex = NULL;
         }
     }
     printf("Starting with screen resolution of %dx%d px\n", monitor_hor_res, monitor_ver_res);
@@ -98,7 +103,7 @@ void do_loop(void *arg)
 {
     /* Periodically call the lv_task handler.
      * It could be done in a timer interrupt or an OS task too.*/
-    lv_task_handler();
+    lv_timer_handler();
 }
 
 /**********************
@@ -116,10 +121,6 @@ static void hal_init(void)
     lv_group_t * g = lv_group_create();
     lv_group_set_default(g);
 
-    lv_sdl_mouse_create();
-    lv_sdl_mousewheel_create();
-    lv_sdl_keyboard_create();
- 
     lv_indev_t * mouse = lv_sdl_mouse_create();
     lv_indev_set_group(mouse, lv_group_get_default());
     
