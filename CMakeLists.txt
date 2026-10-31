@@ -12,7 +12,7 @@ set(SOURCES ${MY_SOURCES})
 add_executable(index ${SOURCES} ${INCLUDES})
 
 if(NOT LVGL_CHOSEN_DEMO)
-    set(LVGL_CHOSEN_DEMO lv_demo_widgets)
+    set(LVGL_CHOSEN_DEMO yte_port_ui_init)
 endif()
 set_source_files_properties(main.c PROPERTIES COMPILE_FLAGS -DCHOSEN_DEMO=${LVGL_CHOSEN_DEMO})
 
@@ -24,4 +24,4 @@ target_link_libraries(index
     lvgl_thorvg
     SDL2
 )
-set_target_properties(index PROPERTIES LINK_FLAGS "--shell-file ${PROJECT_SOURCE_DIR}/lvgl_shell.html -s SINGLE_FILE=1")
+set_target_properties(index PROPERTIES LINK_FLAGS "--shell-file ${PROJECT_SOURCE_DIR}/lvgl_shell.html -s SINGLE_FILE=1 -s ALLOW_MEMORY_GROWTH=1 -s EXPORTED_RUNTIME_METHODS=ccall")
